@@ -1,4 +1,3 @@
-require('dotenv').config();
 const SerpApi = require('google-search-results-nodejs')
 const search = new SerpApi.GoogleSearch(process.env.SerpAPIKey)
 
