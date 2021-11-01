@@ -1,5 +1,5 @@
 const axios = require("axios");
-const twitter = require('twitter');
+const TwitterApi = require("twitter-api-v2");
 
 exports.handler = async (event) => {
     const params = {
@@ -38,17 +38,16 @@ exports.handler = async (event) => {
         tweet += `${eventsInTheNextThreeDays[i].title}  ${eventsInTheNextThreeDays[i].date.when} at ${eventsInTheNextThreeDays[i].address[0]}`;
       }
 
-      var client = new twitter({
-        consumer_key: process.env.TwitterAPIKey,
-        consumer_secret: process.env.TwitterAPIKeySecret,
-        bearer_token: process.env.TwitterAPIBearerToken
+      var client = new TwitterApi({
+          consumer_key: process.env.TwitterConsumerKey,
+          consumer_secret: process.env.TwitterConsumerKeySecret,
+          access_token_key: process.env.TwitterAPIKey,
+          access_token_secret: process.env.TwitterAPIKeySecret
       });
+      const appOnlyClientFromConsumer = await client.appLogin();
 
-      client.post('statuses/update', {status: tweet}, function(error, tweet, response) {
-        if (!error) {
-          console.log(tweet);
-        }
-      });
+      await client.v1.tweet('I am a tweet');
+
       
       return tweet;
 };
