@@ -3,6 +3,7 @@ const axios = require("axios");
 
 exports.handler = async (event) => {
     const params = {
+        api_key: process.env.SerpAPIKey,
         q: "events in Cincinnati, OH",
         google_domain: "google.com",
         gl: "us",
