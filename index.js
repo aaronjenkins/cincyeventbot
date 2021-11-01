@@ -1,5 +1,4 @@
-const SerpApi = require('google-search-results-nodejs')
-const search = new SerpApi.GoogleSearch(process.env.SerpAPIKey)
+const axios = require("axios");
 
 
 exports.handler = async (event) => {
@@ -10,10 +9,7 @@ exports.handler = async (event) => {
         hl: "en"
       };
       
-      const callback = function(data) {
-        console.log(data['events_results']);
-      };
+      return await axios.get("https://serpapi.com/search", {params: params})
       
-    return search.json(params, callback);
 };
 

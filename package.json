@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/aaronjenkins/cincyeventbot#readme",
   "dependencies": {
-    "google-search-results-nodejs": "^2.0.1",
+    "axios": "^0.24.0",
     "twitter": "^1.7.1"
   }
 }
