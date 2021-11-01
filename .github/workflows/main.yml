@@ -8,6 +8,8 @@ jobs:
     steps:
       - name: checkout source code
         uses: actions/checkout@v1
+      - name: yarn install & zip
+        run: yarn install && zip -r deployment.zip ./
       - name: default deploy
         uses: appleboy/lambda-action@master
         with:
