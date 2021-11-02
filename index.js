@@ -33,9 +33,9 @@ exports.handler = async (event) => {
              return new Date(a.date.start_date) - new Date(b.date.start_date);
       });
       
-      let tweet = "";
+      let tweet = "Upcoming Events: \r\n";
       for (let i = 0; i < eventsInTheNextThreeDays.length; i++) {
-        tweet += `${eventsInTheNextThreeDays[i].title}  ${eventsInTheNextThreeDays[i].date.when} at ${eventsInTheNextThreeDays[i].address[0]}`;
+        tweet += `\r\n${eventsInTheNextThreeDays[i].title}\r\n${eventsInTheNextThreeDays[i].date.when}\r\nat ${eventsInTheNextThreeDays[i].address[0]}\r\n`;
       }
 
       var client = new TwitterApi({
@@ -44,11 +44,9 @@ exports.handler = async (event) => {
           accessToken: process.env.TWITTER_ACCESS_TOKEN_KEY,
           accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET
       })
-      const appOnlyClient = new TwitterApi(process.env.TwitterAPIBearerToken);
-      console.log(process.env.TwitterAPIBearerToken)
+
       await client.v1.tweet(tweet);
 
-      
       return tweet;
 };
 
