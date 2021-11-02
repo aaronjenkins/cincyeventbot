@@ -1,5 +1,5 @@
 const axios = require("axios");
-const TwitterApi = require("twitter-api-v2");
+const {TwitterApi} = require("twitter-api-v2");
 
 exports.handler = async (event) => {
     const params = {
@@ -21,7 +21,7 @@ exports.handler = async (event) => {
 
 
       const dayAfterTomorrow = new Date(now)
-      dayAfterTomorrow.setDate(now.getDate() + 4)
+      dayAfterTomorrow.setDate(now.getDate() + 2)
       const dayAfterTomorrowFormatted = dayAfterTomorrow.toLocaleString('en-US', {  month: 'short', day: 'numeric' });
 
       let nextThreeDays = [todayFormatted, tomorrowFormatted, dayAfterTomorrowFormatted ];
@@ -39,14 +39,14 @@ exports.handler = async (event) => {
       }
 
       var client = new TwitterApi({
-          consumer_key: process.env.TwitterConsumerKey,
-          consumer_secret: process.env.TwitterConsumerKeySecret,
-          access_token_key: process.env.TwitterAPIKey,
-          access_token_secret: process.env.TwitterAPIKeySecret
-      });
-      const appOnlyClientFromConsumer = await client.appLogin();
-
-      await client.v1.tweet('I am a tweet');
+          appKey: process.env.TWITTER_CONSUMER_KEY,
+          appSecret: process.env.TWITTER_CONSUMER_SECRET,
+          accessToken: process.env.TWITTER_ACCESS_TOKEN_KEY,
+          accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET
+      })
+      const appOnlyClient = new TwitterApi(process.env.TwitterAPIBearerToken);
+      console.log(process.env.TwitterAPIBearerToken)
+      await client.v1.tweet(tweet);
 
       
       return tweet;
