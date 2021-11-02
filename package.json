@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/aaronjenkins/cincyeventbot.git"
   },
-  "author": "",
+  "author": "Aaron Jenkins aaron@aaronjenkins.me",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/aaronjenkins/cincyeventbot/issues"
