@@ -4,7 +4,7 @@ const { TwitterApi } = require("twitter-api-v2");
 exports.handler = async (event) => {
   const params = {
     api_key: process.env.SerpAPIKey,
-    q: "events in Cincinnati, OH",
+    q: "Events in Cincinnati, OH",
     google_domain: "google.com",
     gl: "us",
     hl: "en",
@@ -13,7 +13,6 @@ exports.handler = async (event) => {
   let response = await axios.get("https://serpapi.com/search", {
     params: params,
   });
-  let localevents = response.data.events_results;
   let now = new Date();
   let todayFormatted = now.toLocaleString("en-US", {
     month: "short",
@@ -39,7 +38,7 @@ exports.handler = async (event) => {
     tomorrowFormatted,
     dayAfterTomorrowFormatted,
   ];
-  let eventsInTheNextThreeDays = localevents.filter(function (item) {
+  let eventsInTheNextThreeDays = response.data.events_results.filter(function (item) {
     return nextThreeDays.indexOf(item.date.start_date) !== -1;
   });
 
