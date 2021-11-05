@@ -9,13 +9,14 @@ exports.handler = async (event) => {
             google_domain: 'google.com',
             gl: 'us',
             hl: 'en',
+            engine: 'google_events'
         },
     });
 
     let eventsInTheNextThreeDays;
-    let tweet;
-
-    if (response.data.events_results.count > 0) {
+    let tweet = '';
+    console.log(response.data.events_results.length);
+    if (response.data.events_results.length > 0) {
         let now = new Date();
         let todayFormatted = now.toLocaleString('en-US', {
             month: 'short',
