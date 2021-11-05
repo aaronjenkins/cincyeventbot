@@ -9,14 +9,21 @@ exports.handler = async (event) => {
             google_domain: 'google.com',
             gl: 'us',
             hl: 'en',
-            engine: 'google_events'
+            engine: 'google_events',
         },
     });
 
-    let eventsInTheNextThreeDays;
-    let tweet = '';
+    var client = new TwitterApi({
+        appKey: process.env.TWITTER_CONSUMER_KEY,
+        appSecret: process.env.TWITTER_CONSUMER_SECRET,
+        accessToken: process.env.TWITTER_ACCESS_TOKEN_KEY,
+        accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
+    });
+
     console.log(response.data.events_results.length);
     if (response.data.events_results.length > 0) {
+        let eventsInTheNextThreeDays;
+
         let now = new Date();
         let todayFormatted = now.toLocaleString('en-US', {
             month: 'short',
@@ -55,22 +62,24 @@ exports.handler = async (event) => {
             return new Date(a.date.start_date) - new Date(b.date.start_date);
         });
 
-        tweet += 'Upcoming Events: \r\n';
-        for (let i = 0; i < eventsInTheNextThreeDays.length; i++) {
-            tweet += `\r\n${eventsInTheNextThreeDays[i].title}\r\n${eventsInTheNextThreeDays[i].date.when}\r\nat ${eventsInTheNextThreeDays[i].address[0]}\r\n`;
+        //split events into groups of 3 cause tweets can be max 280 char
+        var i,
+            j,
+            temporary,
+            chunk = 3;
+        for (i = 0, j = eventsInTheNextThreeDays.length; i < j; i += chunk) {
+            temporary = eventsInTheNextThreeDays.slice(i, i + chunk);
+            let tweet = 'Upcoming Events: \r\n';
+
+            for (let p = 0; p < eventsInTheNextThreeDays.length; p++) {
+                tweet += `\r\n${eventsInTheNextThreeDays[p].title}\r\n${eventsInTheNextThreeDays[p].date.when}\r\nat ${eventsInTheNextThreeDays[p].address[0]}\r\n`;
+            }
+            await client.v1.tweet(tweet);
         }
     } else {
-        tweet = "weird, didn't find any events for the next 3 days...";
+        let tweet = "weird, didn't find any events for the next 3 days...";
+        await client.v1.tweet(tweet);
     }
-
-    var client = new TwitterApi({
-        appKey: process.env.TWITTER_CONSUMER_KEY,
-        appSecret: process.env.TWITTER_CONSUMER_SECRET,
-        accessToken: process.env.TWITTER_ACCESS_TOKEN_KEY,
-        accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
-    });
-
-    await client.v1.tweet(tweet);
 
     return tweet;
 };
