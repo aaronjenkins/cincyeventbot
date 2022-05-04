@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { TwitterApi } = require('twitter-api-v2');
+const { Client, Intents } = require('discord.js');
 
 exports.handler = async (event) => {
     let response = await axios.get('https://serpapi.com/search', {
@@ -13,12 +13,19 @@ exports.handler = async (event) => {
         },
     });
 
-    var client = new TwitterApi({
-        appKey: process.env.TWITTER_CONSUMER_KEY,
-        appSecret: process.env.TWITTER_CONSUMER_SECRET,
-        accessToken: process.env.TWITTER_ACCESS_TOKEN_KEY,
-        accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
+    // var client = new TwitterApi({
+    //     appKey: process.env.TWITTER_CONSUMER_KEY,
+    //     appSecret: process.env.TWITTER_CONSUMER_SECRET,
+    //     accessToken: process.env.TWITTER_ACCESS_TOKEN_KEY,
+    //     accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
+    // });
+
+    const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+    client.once('ready', () => {
+        console.log('Ready!');
     });
+
+    client.login(token);
 
     console.log(response.data.events_results.length);
     if (response.data.events_results.length > 0) {
@@ -74,11 +81,15 @@ exports.handler = async (event) => {
             for (let p = 0; p < eventsInTheNextThreeDays.length; p++) {
                 tweet += `\r\n${eventsInTheNextThreeDays[p].title}\r\n${eventsInTheNextThreeDays[p].date.when}\r\nat ${eventsInTheNextThreeDays[p].address[0]}\r\n`;
             }
-            await client.v1.tweet(tweet);
+            await client.on('messageCreate', () => {
+                client.channels.cache.get(process.env.DISCORD_CHANNEL_ID).send(tweet);
+            });
         }
     } else {
         let tweet = "weird, didn't find any events for the next 3 days...";
-        await client.v1.tweet(tweet);
+        await client.on('messageCreate', () => {
+            client.channels.cache.get(process.env.DISCORD_CHANNEL_ID).send(tweet);
+        });
     }
 
     return tweet;
