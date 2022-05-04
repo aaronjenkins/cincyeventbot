@@ -19,3 +19,4 @@ jobs:
           function_name: cincyeventbotv2
           zip_file: deployment.zip
           runtime: nodejs14.x
+          description: "aws:states:opt-out"
