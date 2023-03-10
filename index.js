@@ -1,10 +1,10 @@
 const axios = require('axios');
-const { Client, Intents } = require('discord.js');
+const Discord = require('discord.js');
 
 exports.handler = async (event) => {
     let response = await axios.get('https://serpapi.com/search', {
         params: {
-            api_key: process.env.SerpAPIKey,
+            api_key: process.env.serp_api_key,
             q: 'Events in Cincinnati, OH',
             google_domain: 'google.com',
             gl: 'us',
@@ -12,20 +12,6 @@ exports.handler = async (event) => {
             engine: 'google_events',
         },
     });
-
-    // var client = new TwitterApi({
-    //     appKey: process.env.TWITTER_CONSUMER_KEY,
-    //     appSecret: process.env.TWITTER_CONSUMER_SECRET,
-    //     accessToken: process.env.TWITTER_ACCESS_TOKEN_KEY,
-    //     accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
-    // });
-
-    const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
-    client.once('ready', () => {
-        console.log('Ready!');
-    });
-
-    client.login(token);
 
     console.log(response.data.events_results.length);
     if (response.data.events_results.length > 0) {
@@ -69,28 +55,51 @@ exports.handler = async (event) => {
             return new Date(a.date.start_date) - new Date(b.date.start_date);
         });
 
-        //split events into groups of 3 cause tweets can be max 280 char
+        //split events into groups of 3  for readability
         var i,
             j,
             temporary,
             chunk = 3;
         for (i = 0, j = eventsInTheNextThreeDays.length; i < j; i += chunk) {
             temporary = eventsInTheNextThreeDays.slice(i, i + chunk);
-            let tweet = 'Upcoming Events: \r\n';
+            let message = 'Upcoming Events: \r\n';
 
             for (let p = 0; p < eventsInTheNextThreeDays.length; p++) {
-                tweet += `\r\n${eventsInTheNextThreeDays[p].title}\r\n${eventsInTheNextThreeDays[p].date.when}\r\nat ${eventsInTheNextThreeDays[p].address[0]}\r\n`;
+                message += `\r\n${eventsInTheNextThreeDays[p].title}\r\n${eventsInTheNextThreeDays[p].date.when}\r\nat ${eventsInTheNextThreeDays[p].address[0]}\r\n`;
             }
-            await client.on('messageCreate', () => {
-                client.channels.cache.get(process.env.DISCORD_CHANNEL_ID).send(tweet);
-            });
+            await sendMessage(message);
         }
     } else {
-        let tweet = "weird, didn't find any events for the next 3 days...";
-        await client.on('messageCreate', () => {
-            client.channels.cache.get(process.env.DISCORD_CHANNEL_ID).send(tweet);
-        });
+        let message = "weird, didn't find any events for the next 3 days...";
+        await sendMessage(message);
     }
-
-    return tweet;
 };
+
+async function sendMessage(message) {
+    const webhookUrl = process.env.discord_webhook_url;
+
+    const payload = {
+        content: message,
+    };
+
+    const config = {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    };
+
+    try {
+        const response = await axios.post(webhookUrl, payload, config);
+        console.log(`Response: ${response.data}`);
+        return {
+            statusCode: 200,
+            body: 'Message sent to Discord!',
+        };
+    } catch (error) {
+        console.error(`Error: ${error}`);
+        return {
+            statusCode: 500,
+            body: 'Failed to send message to Discord!',
+        };
+    }
+}
