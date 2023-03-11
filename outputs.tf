@@ -7,10 +7,10 @@ output "lambda_bucket_name" {
 
 output "function_name" {
   description = "Name of the Lambda function."
-  value       = aws_lambda_function.EventBot.function_name
+  value       = aws_lambda_function.CincyEventBot.function_name
 }
 
 output "function_arn" {
   description = "ARN of the Lambda function."
-  value       = aws_lambda_function.EventBot.arn
+  value       = aws_lambda_function.CincyEventBot.arn
 }
