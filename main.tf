@@ -1,6 +1,8 @@
 variable "AWS_ACCESS_KEY" {}
 variable "AWS_REGION" {}
 variable "AWS_SECRET_KEY" {}
+variable "serp_api_key" {}
+variable "discord_webhook_url" {}
 
 terraform {
   required_providers {
@@ -24,22 +26,22 @@ provider "aws" {
 }
 
 
-data "archive_file" "EventBot" {
+data "archive_file" "CincyEventBot" {
   type        = "zip"
   source_dir  = "${path.module}/src"
-  output_path = "${path.module}/dist/EventBot.zip"
+  output_path = "${path.module}/dist/CincyEventBot.zip"
 }
 
-resource "aws_s3_object" "EventBot" {
+resource "aws_s3_object" "CincyEventBot" {
   bucket = aws_s3_bucket.lambda_bucket.id
-  key    = "EventBot.zip"
-  source = data.archive_file.EventBot.output_path
-  etag   = filemd5(data.archive_file.EventBot.output_path)
+  key    = "CincyEventBot.zip"
+  source = data.archive_file.CincyEventBot.output_path
+  etag   = filemd5(data.archive_file.CincyEventBot.output_path)
 
 }
 
 resource "aws_s3_bucket" "lambda_bucket" {
-  bucket = "cincyeventbotbuild"
+  bucket = "cincyCincyEventBotbuild"
 }
 
 resource "aws_s3_bucket_acl" "bucket_acl" {
@@ -47,27 +49,29 @@ resource "aws_s3_bucket_acl" "bucket_acl" {
   acl    = "private"
 }
 
-resource "aws_lambda_function" "EventBot" {
-  function_name    = "EventBot"
+resource "aws_lambda_function" "CincyEventBot" {
+  function_name    = "CincyEventBot"
   s3_bucket        = aws_s3_bucket.lambda_bucket.id
-  s3_key           = aws_s3_object.EventBot.key
+  s3_key           = aws_s3_object.CincyEventBot.key
   runtime          = "nodejs14.x"
   handler          = "index.handler"
-  source_code_hash = data.archive_file.EventBot.output_base64sha256
+  source_code_hash = data.archive_file.CincyEventBot.output_base64sha256
   role             = aws_iam_role.lambda_exec.arn
   environment {
     variables = {
+      discord_webhook_url = var.discord_webhook_url,
+      serp_api_key        = var.serp_api_key
     }
   }
 }
 
-resource "aws_cloudwatch_log_group" "EventBot" {
-  name              = "/aws/lambda/${aws_lambda_function.EventBot.function_name}"
+resource "aws_cloudwatch_log_group" "CincyEventBot" {
+  name              = "/aws/lambda/${aws_lambda_function.CincyEventBot.function_name}"
   retention_in_days = 30
 }
 
 resource "aws_iam_role" "lambda_exec" {
-  name = "EventBot-lambda"
+  name = "CincyEventBot-lambda"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
