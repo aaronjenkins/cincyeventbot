@@ -39,7 +39,7 @@ resource "aws_s3_object" "EventBot" {
 }
 
 resource "aws_s3_bucket" "lambda_bucket" {
-  bucket = "eventbot"
+  bucket = "cincyeventbotbuild"
 }
 
 resource "aws_s3_bucket_acl" "bucket_acl" {
