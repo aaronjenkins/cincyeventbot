@@ -54,20 +54,12 @@ exports.handler = async (event) => {
             return new Date(a.date.start_date) - new Date(b.date.start_date);
         });
 
-        //split events into groups of 3  for readability
-        var i,
-            j,
-            temporary,
-            chunk = 3;
-        for (i = 0, j = eventsInTheNextThreeDays.length; i < j; i += chunk) {
-            temporary = eventsInTheNextThreeDays.slice(i, i + chunk);
-            let message = 'Upcoming Events: \r\n';
+        let message = 'Upcoming Events: \r\n';
 
-            for (let p = 0; p < eventsInTheNextThreeDays.length; p++) {
-                message += `\r\n${eventsInTheNextThreeDays[p].title}\r\n${eventsInTheNextThreeDays[p].date.when}\r\nat ${eventsInTheNextThreeDays[p].address[0]}\r\n`;
-            }
-            await sendMessage(message);
+        for (let p = 0; p < eventsInTheNextThreeDays.length; p++) {
+            message += `\r\n${eventsInTheNextThreeDays[p].title}\r\n${eventsInTheNextThreeDays[p].date.when}\r\nat ${eventsInTheNextThreeDays[p].address[0]}\r\n`;
         }
+        await sendMessage(message);
     } else {
         let message = "weird, didn't find any events for the next 3 days...";
         await sendMessage(message);
