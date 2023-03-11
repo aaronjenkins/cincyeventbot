@@ -41,7 +41,7 @@ resource "aws_s3_object" "CincyEventBot" {
 }
 
 resource "aws_s3_bucket" "lambda_bucket" {
-  bucket = "cincyCincyEventBotbuild"
+  bucket = "cincyeventbot-build"
 }
 
 resource "aws_s3_bucket_acl" "bucket_acl" {
@@ -53,7 +53,7 @@ resource "aws_lambda_function" "CincyEventBot" {
   function_name    = "CincyEventBot"
   s3_bucket        = aws_s3_bucket.lambda_bucket.id
   s3_key           = aws_s3_object.CincyEventBot.key
-  runtime          = "nodejs14.x"
+  runtime          = "nodejs16.x"
   handler          = "index.handler"
   source_code_hash = data.archive_file.CincyEventBot.output_base64sha256
   role             = aws_iam_role.lambda_exec.arn
