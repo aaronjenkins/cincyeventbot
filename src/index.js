@@ -1,5 +1,4 @@
 const axios = require('axios');
-const Discord = require('discord.js');
 
 exports.handler = async (event) => {
     let response = await axios.get('https://serpapi.com/search', {

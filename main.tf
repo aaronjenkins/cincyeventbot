@@ -57,6 +57,7 @@ resource "aws_lambda_function" "CincyEventBot" {
   handler          = "index.handler"
   source_code_hash = data.archive_file.CincyEventBot.output_base64sha256
   role             = aws_iam_role.lambda_exec.arn
+  timeout          = 15
   environment {
     variables = {
       discord_webhook_url = var.discord_webhook_url,
