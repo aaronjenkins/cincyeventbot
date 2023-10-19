@@ -67,10 +67,11 @@ exports.handler = async (event) => {
 };
 
 async function sendMessage(message) {
-    const webhookUrl = process.env.discord_webhook_url;
+    const webhookUrl = process.env.TELEGRAM_URL;
 
     const payload = {
-        content: message,
+        chat_id: process.env.CHANNEL_ID,
+        text: message,
     };
 
     const config = {
@@ -84,13 +85,13 @@ async function sendMessage(message) {
         console.log(`Response: ${response.data}`);
         return {
             statusCode: 200,
-            body: 'Message sent to Discord!',
+            body: 'Message sent to Telegram!',
         };
     } catch (error) {
         console.error(`Error: ${error}`);
         return {
             statusCode: 500,
-            body: 'Failed to send message to Discord!',
+            body: 'Failed to send message to Telegram!',
         };
     }
 }

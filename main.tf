@@ -2,7 +2,10 @@ variable "AWS_ACCESS_KEY" {}
 variable "AWS_REGION" {}
 variable "AWS_SECRET_KEY" {}
 variable "serp_api_key" {}
-variable "discord_webhook_url" {}
+variable "CHANNEL_ID" {}
+variable "TELEGRAM_URL" {
+  
+}
 
 terraform {
   required_providers {
@@ -60,8 +63,9 @@ resource "aws_lambda_function" "CincyEventBot" {
   timeout          = 15
   environment {
     variables = {
-      discord_webhook_url = var.discord_webhook_url,
-      serp_api_key        = var.serp_api_key
+      TELEGRAM_URL =  var.TELEGRAM_URL
+      CHANNEL_ID = var.CHANNEL_ID
+      serp_api_key = var.serp_api_key
     }
   }
 }
