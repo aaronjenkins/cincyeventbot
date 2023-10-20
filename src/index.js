@@ -1,68 +1,71 @@
+require('dotenv').config();
+
 const axios = require('axios');
 
 exports.handler = async (event) => {
-    let response = await axios.get('https://serpapi.com/search', {
-        params: {
-            api_key: process.env.serp_api_key,
-            q: 'Events in Cincinnati, OH',
-            google_domain: 'google.com',
-            gl: 'us',
-            hl: 'en',
-            engine: 'google_events',
-        },
-    });
-
-    console.log(response.data.events_results.length);
-    if (response.data.events_results.length > 0) {
-        let eventsInTheNextThreeDays;
-
-        let now = new Date();
-        let todayFormatted = now.toLocaleString('en-US', {
-            month: 'short',
-            day: 'numeric',
+    let response;
+    try {
+        response = await axios.get('https://serpapi.com/search', {
+            params: {
+                api_key: process.env.serp_api_key,
+                q: 'Events in Cincinnati, OH',
+                google_domain: 'google.com',
+                gl: 'us',
+                hl: 'en',
+                engine: 'google_events',
+            },
         });
+    } catch (error) {
+        console.error(`Failed to fetch events: ${error}`);
+        return {
+            statusCode: 500,
+            body: 'Failed to fetch events!',
+        };
+    }
 
-        let tomorrow = new Date(now);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        let tomorrowFormatted = tomorrow.toLocaleString('en-US', {
-            month: 'short',
-            day: 'numeric',
-        });
+    const { events_results } = response.data;
 
-        let dayAfterTomorrow = new Date(now);
-        dayAfterTomorrow.setDate(now.getDate() + 2);
-        let dayAfterTomorrowFormatted = dayAfterTomorrow.toLocaleString(
-            'en-US',
-            {
-                month: 'short',
-                day: 'numeric',
-            }
+    if (events_results && events_results.length > 0) {
+        const now = new Date();
+        const today = now;
+        const tomorrow = new Date(now.setDate(now.getDate() + 1));
+        const dayAfterTomorrow = new Date(now.setDate(now.getDate() + 1));
+
+        const isEventInTheNextThreeDays = (eventDate) => {
+            const eventDt = new Date(eventDate);
+            return (
+                eventDt.getDate() === today.getDate() ||
+                eventDt.getDate() === tomorrow.getDate() ||
+                eventDt.getDate() === dayAfterTomorrow.getDate()
+            );
+        };
+
+        const eventsInTheNextThreeDays = events_results.filter((item) =>
+            isEventInTheNextThreeDays(item.date.start_date)
         );
 
-        let nextThreeDays = [
-            todayFormatted,
-            tomorrowFormatted,
-            dayAfterTomorrowFormatted,
-        ];
-        eventsInTheNextThreeDays = response.data.events_results.filter(
-            function (item) {
-                return nextThreeDays.indexOf(item.date.start_date) !== -1;
-            }
+        eventsInTheNextThreeDays.sort(
+            (a, b) => new Date(a.date.start_date) - new Date(b.date.start_date)
         );
-
-        eventsInTheNextThreeDays.sort(function (a, b) {
-            return new Date(a.date.start_date) - new Date(b.date.start_date);
-        });
 
         let message = 'Upcoming Events: \r\n';
 
-        for (let p = 0; p < eventsInTheNextThreeDays.length; p++) {
-            message += `\r\n${eventsInTheNextThreeDays[p].title}\r\n${eventsInTheNextThreeDays[p].date.when}\r\nat ${eventsInTheNextThreeDays[p].address[0]}\r\n`;
+        for (let event of eventsInTheNextThreeDays) {
+            message += `\r\n${event.title}\r\n${event.date.when}\r\nat ${event.address[0]}\r\n`;
         }
+
         await sendMessage(message);
+        return {
+            statusCode: 200,
+            body: 'Processed events successfully!',
+        };
     } else {
         let message = "weird, didn't find any events for the next 3 days...";
         await sendMessage(message);
+        return {
+            statusCode: 200,
+            body: 'No events found for the next 3 days.',
+        };
     }
 };
 
