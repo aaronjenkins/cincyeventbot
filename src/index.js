@@ -13,8 +13,9 @@ exports.handler = async (event) => {
                 engine: 'google_events',
             },
         });
+        console.log('Successfully fetched events from SERP API.');
     } catch (error) {
-        console.error(`Failed to fetch events: ${error}`);
+        console.error('Error fetching events from SERP API:', error);
         return {
             statusCode: 500,
             body: 'Failed to fetch events!',
@@ -24,24 +25,7 @@ exports.handler = async (event) => {
     const { events_results } = response.data;
 
     if (events_results && events_results.length > 0) {
-        const now = new Date();
-        const today = now;
-        const tomorrow = new Date(now.setDate(now.getDate() + 1));
-        const dayAfterTomorrow = new Date(now.setDate(now.getDate() + 1));
-
-        const isEventInTheNextThreeDays = (eventDate) => {
-            const eventDt = new Date(eventDate);
-            return (
-                eventDt.getDate() === today.getDate() ||
-                eventDt.getDate() === tomorrow.getDate() ||
-                eventDt.getDate() === dayAfterTomorrow.getDate()
-            );
-        };
-
-        const eventsInTheNextThreeDays = events_results.filter((item) =>
-            isEventInTheNextThreeDays(item.date.start_date)
-        );
-
+        const eventsInTheNextThreeDays = filterEventsForNextThreeDays(events_results);
         eventsInTheNextThreeDays.sort(
             (a, b) => new Date(a.date.start_date) - new Date(b.date.start_date)
         );
@@ -53,6 +37,7 @@ exports.handler = async (event) => {
         }
 
         await sendMessage(message);
+        console.log('Processed events successfully.');
         return {
             statusCode: 200,
             body: 'Processed events successfully!',
@@ -60,12 +45,33 @@ exports.handler = async (event) => {
     } else {
         let message = "weird, didn't find any events for the next 3 days...";
         await sendMessage(message);
+        console.warn('No events found for the next 3 days.');
         return {
             statusCode: 200,
             body: 'No events found for the next 3 days.',
         };
     }
 };
+
+function filterEventsForNextThreeDays(events) {
+    const now = new Date();
+    const today = now;
+    const tomorrow = new Date(now.setDate(now.getDate() + 1));
+    const dayAfterTomorrow = new Date(now.setDate(now.getDate() + 1));
+
+    const isEventInTheNextThreeDays = (eventDate) => {
+        const eventDt = new Date(eventDate);
+        return (
+            eventDt.getDate() === today.getDate() ||
+            eventDt.getDate() === tomorrow.getDate() ||
+            eventDt.getDate() === dayAfterTomorrow.getDate()
+        );
+    };
+
+    return events.filter((item) =>
+        isEventInTheNextThreeDays(item.date.start_date)
+    );
+}
 
 async function sendMessage(message) {
     const webhookUrl = process.env.TELEGRAM_URL;
@@ -83,13 +89,13 @@ async function sendMessage(message) {
 
     try {
         const response = await axios.post(webhookUrl, payload, config);
-        console.log(`Response: ${response.data}`);
+        console.log(`Successfully sent message to Telegram: ${response.data}`);
         return {
             statusCode: 200,
             body: 'Message sent to Telegram!',
         };
     } catch (error) {
-        console.error(`Error: ${error}`);
+        console.error('Error sending message to Telegram:', error);
         return {
             statusCode: 500,
             body: 'Failed to send message to Telegram!',
