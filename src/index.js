@@ -14,6 +14,7 @@ exports.handler = async (event) => {
             },
         });
         console.log('Successfully fetched events from SERP API.');
+        console.log(JSON.stringify(response.data))
     } catch (error) {
         console.error('Error fetching events from SERP API:', error);
         return {
@@ -89,7 +90,7 @@ async function sendMessage(message) {
 
     try {
         const response = await axios.post(webhookUrl, payload, config);
-        console.log(`Successfully sent message to Telegram: ${response.data}`);
+        console.log(`Successfully sent message to Telegram: ${JSON.stringify(response.data)}`);
         return {
             statusCode: 200,
             body: 'Message sent to Telegram!',
