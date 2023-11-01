@@ -45,7 +45,6 @@ def is_event_in_the_next_three_days(event_date):
         event_dt.day == day_after_tomorrow.day
     )
 
-
 def send_message(message):
     webhook_url = os.environ.get('TELEGRAM_URL')
     chat_id = os.environ.get('CHANNEL_ID')
@@ -79,7 +78,6 @@ def parse_event_date(event_date):
 
 def main():
     events_results = get_upcoming_events()
-    
     if events_results:
         events_in_the_next_three_days = [
             item for item in events_results if is_event_in_the_next_three_days(item['date']['start_date'])
@@ -99,7 +97,7 @@ def main():
     else:
         message = "weird, didn't find any events for the next 3 days..."
         send_message(message)
-        print('No events found for the next 3 days.')
+        print('weird, didn\'t find any events for the next 3 days...')
 
 if __name__ == "__main__":
     main()
