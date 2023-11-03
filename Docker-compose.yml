@@ -1,0 +1,7 @@
+version: '3.8'
+
+services:
+  event_checker:
+    build: .
+    env_file:
+      - .env
