@@ -1,1 +1,1 @@
-`source ~/virtualenvs/default/bin/activate`
+`docker-compose up --build`
