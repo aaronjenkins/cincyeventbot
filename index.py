@@ -20,6 +20,7 @@ def get_upcoming_events():
     try:
         response = requests.get(endpoint, params=params)
         response.raise_for_status()
+        print(f"Response: {response.json()}")
         return response.json().get('events_results')
     except requests.RequestException as error:
         print(f"Failed to fetch events: {error}")
@@ -62,6 +63,8 @@ def send_message(message):
         print(f"Response: {response.json()}")
     except requests.RequestException as error:
         print(f"Error: {error}")
+        print("Response Status Code:", response.status_code)
+        print("Response Body:", response.text)  
 
 def parse_event_date(event_date):
     today = datetime.now()
