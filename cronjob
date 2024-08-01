@@ -1,1 +1,0 @@
-30 11 * * * python /usr/src/app/index.py >> /var/log/cron.log 2>&1

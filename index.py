@@ -84,11 +84,11 @@ def main():
         for event in events_in_the_next_three_days:
             message += f"\n{event['title']}\n{event['date']['when']}\nat {event['address'][0]}\n"
         
-        # send_message(message)
+        send_message(message)
         print('Processed events successfully.')
     else:
         message = "weird, didn't find any events for the next 3 days..."
-        # send_message(message)
+        send_message(message)
         print('weird, didn\'t find any events for the next 3 days...')
 
 if __name__ == "__main__":
